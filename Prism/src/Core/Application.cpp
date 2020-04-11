@@ -11,13 +11,18 @@ namespace Prism {
 
 	Application::Application(const Window::Properties& props)
 	{
-		Task{ ResourceManager::Init }.Submit();
-		Task{ [&]() { m_LuaInstance = std::make_unique<Lua>(); } }.Submit();
-
 		PR_CORE_ASSERT(!g_Application, "There is already an Application instance!");
 		g_Application = this; // set static for global access
 
-		TaskSystem::Wait();
+		// TODO: maybe introduce tasks to speed it up?
+
+		ResourceManager::Init();
+
+		m_LuaInstance = std::make_unique<Lua>();;
+		m_MainWindow = std::make_unique<Window>(props);
+		m_MainWindow->SetEventCallback(PR_BIND_EVENT_FN(Application::EventCallback));
+
+		m_LastFrameTime = GetTime();
 	}
 
 	Application::~Application()
@@ -37,9 +42,41 @@ namespace Prism {
 
 	void Application::Run()
 	{
+		while (m_Running)
+		{
+			auto dt = GetDeltaTime();
+			m_MainWindow->OnUpdate();
+
+			if (dt >= m_MinFrameDuration && !m_Minimized)
+			{
+				/*clientApp->*/OnUpdate(dt);
+
+				StepFrame();
+			}
+		}
 	}
 
-	void Application::EventCallback(Event&)
+	void Application::EventCallback(Event& event)
 	{
+		event.Handle<WindowCloseEvent>([&](WindowCloseEvent& e)
+			{
+				PR_CORE_TRACE("WindowClose handled by Application");
+				m_Running = false;
+				return true;
+			});
+
+		event.Handle<WindowResizeEvent>([&](WindowResizeEvent& e)
+			{
+				if (e.GetWidth() <= 0 || e.GetHeight() <= 0)
+				{
+					m_Minimized = true;
+					return true;
+				}
+				//Renderer::Resize(e.GetWidth(), e.GetHeight());
+				m_Minimized = false;
+				return true;
+			});
+		// Unhandled events: invoke OnEvent on the client application
+		if (!event.handled) /*clientApp->*/OnEvent(event);
 	}
 }

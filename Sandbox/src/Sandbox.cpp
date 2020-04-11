@@ -14,7 +14,7 @@ struct Sandbox : public Prism::Application {
 	Sandbox() : Prism::Application({}) {
 	}
 
-	~Sandbox() { std::cin.get(); }
+	~Sandbox() {  }
 
 	void OnUpdate(float dt) override
 	{

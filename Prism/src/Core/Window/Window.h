@@ -1,5 +1,9 @@
 #pragma once
 
+#include "Core/Events/WindowEvent.h"
+
+#include "Util/Log/Log.h"
+
 #include <string>
 #include <functional>
 
@@ -15,12 +19,17 @@ namespace Prism {
 			bool resizable = true;
 		};
 
+		using EventCallbackFn = std::function<void(Event&)>;
+
 	private:
 
 		// Data struct for GLFW callbacks
 		struct WindowData
 		{
 			Properties& properties;
+			EventCallbackFn callback = [](Event&) {
+				PR_CORE_WARN("No window callback set");
+			};
 		};
 
 		void SetGLFWCallbacks();
@@ -28,12 +37,14 @@ namespace Prism {
 
 	public:
 		Window(const Properties&);
-		~Window() {}
+		~Window();
 
 		void OnUpdate();
 		double GetTime() const;
 
-		void* GetGLFWWindowHandle() const { return m_WindowHandle; }
+		void SetEventCallback(const EventCallbackFn&);
+
+		void* GetWindowHandle() const { return m_WindowHandle; }
 
 
 	private:

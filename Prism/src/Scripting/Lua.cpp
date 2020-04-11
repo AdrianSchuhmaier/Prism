@@ -46,7 +46,7 @@ namespace Prism {
 
 			lua_pushstring(L, "level");
 			lua_gettable(L, -2);
-			player.level = lua_tointeger(L, -1);
+			player.level = static_cast<uint32_t>(lua_tointeger(L, -1));
 			lua_pop(L, 1);
 		}
 		return player;
@@ -68,7 +68,7 @@ namespace Prism {
 		uint32_t result = 100;
 		lua_pushstring(L, name.c_str());
 		lua_gettable(L, -2);
-		result = lua_tointeger(L, -1);
+		result = static_cast<uint32_t>(lua_tointeger(L, -1));
 		lua_pop(L, 1);
 		return result;
 	}

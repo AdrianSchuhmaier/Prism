@@ -1,3 +1,6 @@
 [submodule "Prism/includes/spdlog"]
 	path = Prism/includes/spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "Prism/includes/glfw"]
+	path = Prism/includes/glfw
+	url = https://github.com/AdrianSchuhmaier/glfw.git

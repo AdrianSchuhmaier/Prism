@@ -43,7 +43,6 @@ namespace Prism {
 			else if (!g_Finished)
 			{
 				// no task left, wait for signal
-				PR_THREAD_TRACE("worker-{0} waiting for task", id);
 				std::unique_lock<std::mutex> lock(g_SignalMutex);
 				while (g_Queue.empty() && !g_Finished)
 					g_SignalCondition.wait(lock);

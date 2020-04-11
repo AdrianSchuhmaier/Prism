@@ -34,7 +34,7 @@ namespace Prism {
 		Lua* LuaInstance() { return m_LuaInstance.get(); }
 
 	protected:
-		double GetTime() { return m_Window->GetTime(); }
+		double GetTime() { return m_MainWindow->GetTime(); }
 		float GetDeltaTime() { return (float)(GetTime() - m_LastFrameTime); }
 		void LimitFPS(float fps) { m_MinFrameDuration = 1.0f / fps; }
 		void UnlimitFPS() { m_MinFrameDuration = 0.0f; }
@@ -42,7 +42,7 @@ namespace Prism {
 		void StepFrame() { m_LastFrameTime = GetTime(); }
 
 	private:
-		std::unique_ptr<Window> m_Window = nullptr;
+		std::unique_ptr<Window> m_MainWindow = nullptr;
 		std::unique_ptr<Lua> m_LuaInstance = nullptr;
 
 		bool m_Running = true;
