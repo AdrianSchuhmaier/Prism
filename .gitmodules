@@ -1,0 +1,3 @@
+[submodule "Prism/includes/spdlog"]
+	path = Prism/includes/spdlog
+	url = https://github.com/gabime/spdlog.git
