@@ -22,6 +22,7 @@ includedir = {}
 includedir["spdlog"] = "Prism/includes/spdlog/include"
 includedir["lua"] = "Prism/includes/lua/include"
 includedir["glfw"] = "Prism/includes/glfw/include"
+includedir["stb"] = "Prism/includes/stb"
 
 group "Dependencies"
 	include "Prism/includes/GLFW"
@@ -49,6 +50,7 @@ project "Prism"
         "%{prj.name}/src",
         "%{includedir.spdlog}",
         "%{includedir.glfw}",
+        "%{includedir.stb}",
         "%{includedir.lua}"
 	}
 

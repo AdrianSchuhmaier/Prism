@@ -1,6 +1,7 @@
 #include "Window.h"
 
 #include <GLFW/glfw3.h>
+#include "Util/stb_image.h"
 
 namespace Prism {
 
@@ -42,10 +43,10 @@ namespace Prism {
 			m_Properties.title.c_str(), monitor, nullptr);
 
 		// icon
-		// GLFWimage icons[1];
-		// icons[0].pixels = stbi_load("assets/icon/icon.png", &icons[0].width, &icons[0].height, 0, STBI_rgb_alpha);
-		// glfwSetWindowIcon((GLFWwindow*)m_WindowHandle, 1, icons);
-		// stbi_image_free(icons[0].pixels);
+		GLFWimage icons[1];
+		icons[0].pixels = stbi_load("res/icon/icon.png", &icons[0].width, &icons[0].height, 0, STBI_rgb_alpha);
+		glfwSetWindowIcon((GLFWwindow*)m_WindowHandle, 1, icons);
+		stbi_image_free(icons[0].pixels);
 
 		SetGLFWCallbacks();
 	}
