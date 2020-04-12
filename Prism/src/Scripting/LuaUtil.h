@@ -4,7 +4,7 @@
 
 namespace Prism {
 
-	bool checkLua(uint32_t code) {
+	bool checkLua(lua_State* L, uint32_t code) {
 		if (code != LUA_OK)
 		{
 			PR_LOG_WARN(lua_tostring(L, -1));

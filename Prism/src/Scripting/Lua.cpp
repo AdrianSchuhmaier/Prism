@@ -1,24 +1,29 @@
 #include "Lua.h"
 
-#include "LuaStack.h"
 #include "LuaUtil.h"
 #include "LuaBase.h"
 
 namespace Prism {
 
+#define L (lua_State*)m_Instance
 
 	Lua::Lua()
 	{
-		L = luaL_newstate();
+		m_Instance = (void*)luaL_newstate();
 
 		lua_gc(L, LUA_GCSTOP, 0);
 		luaL_openlibs(L);
 		lua_gc(L, LUA_GCRESTART, 0);
 	}
 
+	Lua::~Lua()
+	{
+		lua_close(L);
+	}
+
 	bool Lua::Execute(const std::string& script)
 	{
-		if (checkLua(luaL_dostring(L, script.c_str())))
+		if (checkLua(L, luaL_dostring(L, script.c_str())))
 			return true;
 		else
 			return false;
@@ -26,7 +31,7 @@ namespace Prism {
 
 	bool Lua::ExecuteFile(const std::string& file)
 	{
-		if (checkLua(luaL_dofile(L, file.c_str())))
+		if (checkLua(L, luaL_dofile(L, file.c_str())))
 			return true;
 		else
 			return false;

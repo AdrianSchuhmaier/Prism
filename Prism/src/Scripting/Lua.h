@@ -17,6 +17,7 @@ namespace Prism {
 	class Lua {
 	public:
 		Lua();
+		~Lua();
 
 		bool Execute(const std::string& script);
 		bool ExecuteFile(const std::string& file);
@@ -33,6 +34,7 @@ namespace Prism {
 
 
 	private:
+		void* m_Instance = nullptr; // lua_State*
 
 		//TODO: let get return variant
 

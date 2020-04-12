@@ -1,7 +1,11 @@
 #include "Application.h"
 
-#include "Core/Resources/ResourceManager.h"
 #include "Core/TaskSystem/TaskSystem.h"
+#include "Core/Resources/ResourceManager.h"
+
+#include "Core/Graphics/Renderer.h"
+#include "Core/Graphics/Vulkan/VulkanInstance.h"
+
 #include "Util/Log/Log.h"
 
 
@@ -17,6 +21,7 @@ namespace Prism {
 		// TODO: maybe introduce tasks to speed it up?
 
 		ResourceManager::Init();
+		VulkanInstance::Init();
 
 		m_LuaInstance = std::make_unique<Lua>();;
 		m_MainWindow = std::make_unique<Window>(props);
@@ -27,6 +32,7 @@ namespace Prism {
 
 	Application::~Application()
 	{
+		VulkanInstance::Shutdown();
 		ResourceManager::Shutdown();
 	}
 

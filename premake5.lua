@@ -23,6 +23,8 @@ includedir["spdlog"] = "Prism/includes/spdlog/include"
 includedir["lua"] = "Prism/includes/lua/include"
 includedir["glfw"] = "Prism/includes/glfw/include"
 includedir["stb"] = "Prism/includes/stb"
+includedir["Vulkan"] = (os.getenv("VK_SDK_PATH") .. "/include")
+includedir["VulkanShader"] = (os.getenv("VK_SDK_PATH") .. "/shaderc/libshader/include")
 
 group "Dependencies"
 	include "Prism/includes/GLFW"
@@ -47,16 +49,25 @@ project "Prism"
 	}
 
 	includedirs {
-        "%{prj.name}/src",
+		"%{prj.name}/src",
         "%{includedir.spdlog}",
-        "%{includedir.glfw}",
+        "%{includedir.lua}",
         "%{includedir.stb}",
-        "%{includedir.lua}"
+        "%{includedir.glfw}",
+        "%{includedir.Vulkan}",
+        "%{includedir.VulkanShader}"
 	}
 
 	links {
         "GLFW",
-		"Prism/includes/lua/lua53"
+		"Prism/includes/lua/lua53",
+		(os.getenv("VK_SDK_PATH") .. "/lib/vulkan-1.lib"),
+		(os.getenv("VK_SDK_PATH") .. "/lib/shaderc_combined.lib")
+	}
+
+	defines {
+		"GLFW_INCLUDE_VULKAN",
+		"STB_IMAGE_IMPLEMENTATION"
 	}
 	
 	filter "configurations:Debug"

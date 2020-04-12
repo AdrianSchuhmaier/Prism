@@ -11,13 +11,3 @@ extern "C"
 #include <lauxlib.h>
 #include <lualib.h>
 }
-
-#include <variant>
-
-namespace Prism {
-
-	// global lua state, initialized in Lua.cpp
-	lua_State* L = nullptr;
-
-	
-}

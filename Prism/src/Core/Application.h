@@ -14,7 +14,7 @@ namespace Prism {
 	 * 
 	 * Acts as the context: holds the window, runs the main loop, receives events
 	 * 
-	 * Also manages static(!) systems (ResourceManager, Renderer, ...)
+	 * Also manages static(!) systems (ResourceManager, VulkanInstance, ...)
 	 * => there must only be one instance of this class!
 	 *****************************************************************************/
 	class Application {

@@ -1,7 +1,7 @@
 #include "Window.h"
 
 #include <GLFW/glfw3.h>
-#include "Util/stb_image.h"
+#include <stb_image.h>
 
 namespace Prism {
 
