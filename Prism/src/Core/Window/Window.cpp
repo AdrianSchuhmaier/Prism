@@ -45,7 +45,7 @@ namespace Prism {
 		// icon
 		GLFWimage icons[1];
 		icons[0].pixels = stbi_load("res/icon/icon.png", &icons[0].width, &icons[0].height, 0, STBI_rgb_alpha);
-		glfwSetWindowIcon((GLFWwindow*)m_WindowHandle, 1, icons);
+		glfwSetWindowIcon(m_WindowHandle, 1, icons);
 		stbi_image_free(icons[0].pixels);
 
 		SetGLFWCallbacks();
@@ -54,7 +54,7 @@ namespace Prism {
 	Window::~Window()
 	{
 		if (m_WindowHandle)
-			glfwDestroyWindow((GLFWwindow*)m_WindowHandle);
+			glfwDestroyWindow(m_WindowHandle);
 	}
 
 	void Window::OnUpdate()
@@ -74,7 +74,7 @@ namespace Prism {
 
 	void Window::SetGLFWCallbacks()
 	{
-		GLFWwindow* window = (GLFWwindow*)m_WindowHandle;
+		GLFWwindow* window = m_WindowHandle;
 
 		// set pointer to WindowData to use for GLFW callback
 		glfwSetWindowUserPointer(window, &m_WindowData);

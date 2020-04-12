@@ -24,9 +24,9 @@ int main(int argc, char** argv)
 	Prism::Application* app = Prism::CreateApplication();
 
 
-	PR_CORE_INFO("Running Application");
+	PR_CORE_INFO("Running Application...");
 	app->Run();
-	PR_CORE_INFO("Application stopped");
+	PR_CORE_INFO("Closing Application...");
 
 
 	// other threads may still be running tasks...

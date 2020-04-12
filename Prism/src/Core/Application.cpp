@@ -18,32 +18,32 @@ namespace Prism {
 		PR_CORE_ASSERT(!g_Application, "There is already an Application instance!");
 		g_Application = this; // set static for global access
 
-		// TODO: maybe introduce tasks to speed it up?
-
 		ResourceManager::Init();
-		VulkanInstance::Init();
 
+		// not really necessary as this is very quick for now
 		m_LuaInstance = std::make_unique<Lua>();;
+
+		// window creation must happen on the main thread
 		m_MainWindow = std::make_unique<Window>(props);
 		m_MainWindow->SetEventCallback(PR_BIND_EVENT_FN(Application::EventCallback));
+		
+		// can't be done before the first window creation (glfwInit())
+		VulkanInstance::Init();
+
+		m_Renderer = std::make_unique<Renderer>(m_MainWindow.get());
 
 		m_LastFrameTime = GetTime();
 	}
 
 	Application::~Application()
 	{
+		// invoke destruction of RAII objects
+		m_Renderer = nullptr;
+		m_MainWindow = nullptr;
+		m_LuaInstance = nullptr;
+
 		VulkanInstance::Shutdown();
 		ResourceManager::Shutdown();
-	}
-
-	Application* Application::Get()
-	{
-		if (g_Application)
-			return g_Application;
-
-		// you should never get here!
-		PR_CORE_ASSERT(false, "static Application::Get() must not be called now!");
-		return nullptr;
 	}
 
 	void Application::Run()

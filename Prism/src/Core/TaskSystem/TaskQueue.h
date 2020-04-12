@@ -32,7 +32,7 @@ namespace Prism {
 				if (full()) return false;
 
 				if (lock.owns_lock()) lock.unlock();
-				lock = std::unique_lock<std::mutex>(taskLocks[current], std::try_to_lock);
+				lock = std::unique_lock<std::mutex>(taskLocks[current]);
 				return true;
 			};
 
@@ -59,7 +59,7 @@ namespace Prism {
 				if (empty()) return false;
 
 				if (lock.owns_lock()) lock.unlock();
-				lock = std::unique_lock<std::mutex>(taskLocks[current], std::try_to_lock);
+				lock = std::unique_lock<std::mutex>(taskLocks[current]);
 				return true;
 			};
 

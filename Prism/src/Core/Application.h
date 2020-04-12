@@ -2,6 +2,7 @@
 
 #include "Core/Events/Event.h"
 #include "Core/Window/Window.h"
+#include "Core/Graphics/Renderer.h"
 
 #include"Scripting/Lua.h"
 
@@ -29,8 +30,6 @@ namespace Prism {
 		virtual void OnUpdate(float dt) = 0;
 		virtual void OnEvent(Event&) = 0;
 
-		// experimental
-		static Application* Get();
 		Lua* LuaInstance() { return m_LuaInstance.get(); }
 
 	protected:
@@ -42,8 +41,9 @@ namespace Prism {
 		void StepFrame() { m_LastFrameTime = GetTime(); }
 
 	private:
-		std::unique_ptr<Window> m_MainWindow = nullptr;
 		std::unique_ptr<Lua> m_LuaInstance = nullptr;
+		std::unique_ptr<Window> m_MainWindow = nullptr;
+		std::unique_ptr<Renderer> m_Renderer = nullptr;
 
 		bool m_Running = true;
 		bool m_Minimized = false;

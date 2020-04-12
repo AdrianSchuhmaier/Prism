@@ -7,7 +7,12 @@
 #include <string>
 #include <functional>
 
+// Avoid including GLFW here, as this would make it
+// a dependency for other projects using Prism
+struct GLFWwindow;
+
 namespace Prism {
+
 	class Window
 	{
 	public:
@@ -44,14 +49,14 @@ namespace Prism {
 
 		void SetEventCallback(const EventCallbackFn&);
 
-		void* GetWindowHandle() const { return m_WindowHandle; }
+		GLFWwindow* GetWindowHandle() const { return m_WindowHandle; }
 
 
 	private:
 		Properties m_Properties;
 		WindowData m_WindowData;
 
-		void* m_WindowHandle = nullptr; // GLFWwindow*
+		GLFWwindow* m_WindowHandle = nullptr;
 
 		static bool s_Initialized;
 	};
