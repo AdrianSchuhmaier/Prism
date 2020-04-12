@@ -9,4 +9,5 @@ namespace Prism {
 	void ResourceManager::Shutdown()
 	{
 	}
+	ResourceMap<VertexBuffer> ResourceManager::m_VertexBuffers{};
 }
