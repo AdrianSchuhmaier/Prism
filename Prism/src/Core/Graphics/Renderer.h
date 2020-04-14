@@ -1,12 +1,14 @@
 #pragma once
 
 #include "Core/Window/Window.h"
+#include "Systems/System.h"
+
 
 namespace Prism {
 
 	class VulkanRenderAPI;
 
-	class Renderer {
+	class Renderer : public System {
 	public:
 		Renderer(Window* window);
 		~Renderer();

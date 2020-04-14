@@ -30,7 +30,10 @@ namespace Prism {
 		// can't be done before the first window creation (glfwInit())
 		VulkanInstance::Init();
 
-		m_Renderer = std::make_unique<Renderer>(m_MainWindow.get());
+		world = std::make_unique<World>();
+		world->systems.Create<Renderer>(m_MainWindow.get());
+
+
 
 		m_LastFrameTime = GetTime();
 	}
@@ -38,7 +41,7 @@ namespace Prism {
 	Application::~Application()
 	{
 		// invoke destruction of RAII objects
-		m_Renderer = nullptr;
+		world = nullptr;
 		m_MainWindow = nullptr;
 		m_LuaInstance = nullptr;
 
@@ -48,6 +51,10 @@ namespace Prism {
 
 	void Application::Run()
 	{
+		if (auto renderer = world->systems.Get<Renderer>())
+		{
+		}
+
 		while (m_Running)
 		{
 			auto dt = GetDeltaTime();

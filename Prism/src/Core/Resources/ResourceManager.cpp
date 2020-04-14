@@ -1,4 +1,7 @@
 #include "ResourceManager.h"
+#include "ResourceMap.h"
+
+#include "Core/Graphics/Vulkan/VulkanSwapchain.h"
 
 namespace Prism {
 	
@@ -9,5 +12,4 @@ namespace Prism {
 	void ResourceManager::Shutdown()
 	{
 	}
-	ResourceMap<VertexBuffer> ResourceManager::m_VertexBuffers{};
 }

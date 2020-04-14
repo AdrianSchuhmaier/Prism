@@ -1,20 +1,16 @@
 #include "Prism.h"
 
-#include <iostream>
-
-struct test {
-	uint32_t x;
-	uint32_t y;
-	uint32_t z;
-	std::string name;
-};
-
 struct Sandbox : public Prism::Application {
 
-	Sandbox() : Prism::Application({}) {
+	Prism::Entity entity;
+
+	Sandbox() : Prism::Application({})
+	{
 	}
 
-	~Sandbox() {  }
+	~Sandbox()
+	{
+	}
 
 	void OnUpdate(float dt) override
 	{

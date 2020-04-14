@@ -1,24 +1,24 @@
 #pragma once
 
-#include "ResourceMap.h"
-
-#include "Util/Log/Log.h"
-
-#include <unordered_map>
-#include <memory>
-#include <atomic>
+#include "Resource.h"
 
 namespace Prism {
 
-	using VertexBuffer = uint32_t;
-
+	/**
+	 * Static class abstracting individual resources into handles
+	 * Especially important to not expose dependency to Vulkan
+	 * 
+	 * Used for loading and managing resource life-time
+	 * May also (in the future) reorder data according to access patterns
+	 */
 	class ResourceManager {
 	public:
-
-
 		static void Init();
 		static void Shutdown();
+
+		template<typename T>
+		static T* Get(ResourceHandle);
+
 	private:
-		static ResourceMap<VertexBuffer> m_VertexBuffers;
 	};
 }

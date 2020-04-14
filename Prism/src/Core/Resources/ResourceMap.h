@@ -1,11 +1,12 @@
 #pragma once
 
+#include "Resource.h"
+
 #include <unordered_map>
 #include <memory>
 #include <atomic>
 
 namespace Prism {
-	using ResourceHandle = uint32_t;
 
 	/**
 	 * Unordered map of shared_ptrs, managing the given resource
@@ -21,13 +22,13 @@ namespace Prism {
 		 * @returns the handle and a shared_ptr of the created resource
 		 */
 		template<typename... Args>
-		std::pair<ResourceHandle, std::shared_ptr<R>> CreateResource(Args&&... args)
+		ResourceHandle CreateResource(Args&&... args)
 		{
 			uint32_t handle = m_NextHandle.load();
 			while (!m_NextHandle.compare_exchange_strong(handle, handle + 1));
 
 			m_Map[handle] = std::make_shared<R>(std::forward<Args>(args)...);
-			return { handle, m_Map[handle] };
+			return handle;
 		}
 
 		/**
