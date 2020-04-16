@@ -33,6 +33,8 @@ namespace Prism {
 		world = std::make_unique<World>();
 		world->systems.Create<Renderer>(m_MainWindow.get());
 
+		auto renderer = world->systems.Get<Renderer>();
+		Resource<Shader>::Create("flat_shader", "res/shaders/flat_test.glsl", renderer);
 
 
 		m_LastFrameTime = GetTime();
@@ -40,20 +42,19 @@ namespace Prism {
 
 	Application::~Application()
 	{
+		// must be done before world destruction (world holds VulkanContext)
+		ResourceManager::Shutdown();
+
 		// invoke destruction of RAII objects
 		world = nullptr;
 		m_MainWindow = nullptr;
 		m_LuaInstance = nullptr;
 
 		VulkanInstance::Shutdown();
-		ResourceManager::Shutdown();
 	}
 
 	void Application::Run()
 	{
-		if (auto renderer = world->systems.Get<Renderer>())
-		{
-		}
 
 		while (m_Running)
 		{
@@ -67,6 +68,9 @@ namespace Prism {
 				StepFrame();
 			}
 		}
+
+		if (auto renderer = world->systems.Get<Renderer>())
+			renderer->Finish();
 	}
 
 	void Application::EventCallback(Event& event)

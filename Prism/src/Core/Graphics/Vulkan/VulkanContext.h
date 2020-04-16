@@ -15,6 +15,9 @@ namespace Prism {
 		void Resize();
 		void WaitDeviceIdle() { vkDeviceWaitIdle(m_Device); }
 
+		VkDevice GetDevice() { return m_Device; }
+		VulkanSwapchain* GetSwapchain() { return m_Swapchain.get(); }
+
 	private:
 		VkSurfaceKHR createSurface(GLFWwindow* window);
 		std::pair<VkPhysicalDevice, VkDevice> selectDevice();

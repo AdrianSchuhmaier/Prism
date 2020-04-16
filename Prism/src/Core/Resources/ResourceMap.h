@@ -2,6 +2,8 @@
 
 #include "Resource.h"
 
+#include "Util/Log/Log.h"
+
 #include <unordered_map>
 #include <memory>
 #include <atomic>
@@ -9,7 +11,6 @@
 namespace Prism {
 
 	/**
-	 * Unordered map of shared_ptrs, managing the given resource
 	 */
 	template<typename R>
 	class ResourceMap {
@@ -22,27 +23,59 @@ namespace Prism {
 		 * @returns the handle and a shared_ptr of the created resource
 		 */
 		template<typename... Args>
-		ResourceHandle CreateResource(Args&&... args)
+		ResourceHandle CreateResource(const ResourceHandle& handle, Args&&... args)
 		{
-			uint32_t handle = m_NextHandle.load();
-			while (!m_NextHandle.compare_exchange_strong(handle, handle + 1));
+			uint32_t initialRefCount = 0;
 
-			m_Map[handle] = std::make_shared<R>(std::forward<Args>(args)...);
+			// if resource already exists
+			auto itr = m_Map.find(handle);
+			if (itr != m_Map.end() && itr->second.second.load() > 0)
+			{ // replacing unreferenced existing resource is considered safe here
+				PR_CORE_CRITICAL("Unsafe replacement of existing resource {0}!", handle);
+				initialRefCount = itr->second.second.load();
+			}
+
+			// create resource
+			m_Map.emplace(handle, std::pair{
+				std::make_unique<R>(std::forward<Args>(args)...),
+				initialRefCount + 1
+				});
+
 			return handle;
 		}
 
-		/**
-		 * @returns a shared_ptr to the resource with the given handle
-		 */
-		std::shared_ptr<R> GetResource(ResourceHandle handle)
+		ResourceHandle GetResource(const ResourceHandle& handle)
 		{
-			if (handle < m_NextHandle)
-				if (const auto& sp = m_Map.at(handle))
-					return sp;
-				else PR_CORE_WARN("Requested resource no longer exists!");
-			else PR_CORE_WARN("No resource with this id ever existed!");
+			// check if resource available
+			auto itr = m_Map.find(handle);
+			if (itr == m_Map.end())
+			{
+				PR_CORE_WARN("Resource {0} not found, invalid resource returned", handle);
+				return { "" };
+			}
+			itr->second.second++; // increment refCount
+			return handle;
+		}
 
-			return nullptr;
+		R* GetRaw(const ResourceHandle& handle)
+		{
+			auto itr = m_Map.find(handle);
+			if (itr == m_Map.end())
+			{
+				PR_CORE_WARN("Resource {0} not found, nullptr returned", handle);
+				return nullptr;
+			}
+
+			return itr->second.first.get();
+		}
+
+		void NotifyCopy(const ResourceHandle& handle)
+		{
+			auto itr = m_Map.find(handle);
+			if (itr != m_Map.end())
+				itr->second.second++; // increment refCount
+			else
+				PR_CORE_WARN("Resource {0} not found, notifyCopy is pointless", handle);
 		}
 
 		/**
@@ -53,23 +86,33 @@ namespace Prism {
 		 *
 		 * @returns if this call destroyed the resource
 		 */
-		bool RemoveResource(ResourceHandle handle)
+		bool RemoveResource(const ResourceHandle& handle)
 		{
-			if (handle < m_NextHandle)
-				if (const auto& sp = m_Map.at(handle))
-				{
-					if (sp.use_count() > 1)
-						PR_CORE_WARN("Resource still referenced, will be removed later");
-					m_Map[handle] = nullptr;
-				}
-				else PR_CORE_WARN("Resource was already removed!");
-			else PR_CORE_WARN("No resource with this id ever existed!");
+			// check if resource available
+			auto itr = m_Map.find(handle);
+			if (itr == m_Map.end())
+			{
+				PR_CORE_ASSERT(false, "Trying to remove non-existent resource {0}", handle);
+				return false;
+			}
+			else if (itr->second.second.load() < 1)
+			{
+				PR_CORE_ASSERT(false, "Resource {0} should have no references");
+				return false;
+			}
 
+			itr->second.second--; // decrement refCount
+			if (itr->second.second.load() == 1)
+				PR_CORE_WARN("No resource destruction implemented");
 			return false;
 		}
 
+		void Clear()
+		{
+			m_Map.clear();
+		}
+
 	private:
-		std::atomic<ResourceHandle> m_NextHandle = 0;
-		std::unordered_map<ResourceHandle, std::shared_ptr<R>> m_Map{};
+		std::unordered_map<ResourceHandle, std::pair<std::unique_ptr<R>, std::atomic<uint32_t>>> m_Map{};
 	};
 }

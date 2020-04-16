@@ -13,7 +13,11 @@ namespace Prism {
 		Renderer(Window* window);
 		~Renderer();
 
+		/** Waits for all rendering to be finished. */
+		void Finish() { /* TODO */ };
+
 	private:
+		friend class ResourceManager;
 		VulkanRenderAPI* m_Renderer;
 	};
 }

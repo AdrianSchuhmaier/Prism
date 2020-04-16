@@ -9,6 +9,8 @@ namespace Prism {
 	public:
 		VulkanRenderAPI(Window* window) : m_Context(window) {}
 
+		VulkanContext* GetContext() { return &m_Context; }
+
 	private:
 		VulkanContext m_Context;
 	};
