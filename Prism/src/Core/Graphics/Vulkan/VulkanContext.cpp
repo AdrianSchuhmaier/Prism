@@ -46,6 +46,8 @@ namespace Prism {
 				}
 			}
 		);
+
+		m_Swapchain->CreateFrameBuffers(m_DefaultRenderPass->GetHandle());
 	}
 
 	VulkanContext::~VulkanContext()

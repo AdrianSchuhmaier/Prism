@@ -17,7 +17,6 @@ namespace Prism {
 		VkSwapchainKHR swapchain;
 		VkFormat format;
 		VkExtent2D extent;
-		std::optional<VkRenderPass> renderPass = std::nullopt;
 
 		std::vector<VkImage> images;
 		std::vector<VkImageView> imageViews;
@@ -26,9 +25,9 @@ namespace Prism {
 		VulkanSwapchain(VkDevice device, VkSurfaceKHR surface, VkExtent2D extent,
 			const SupportDetails& details, std::optional<VkSwapchainKHR> oldSwapchain = std::nullopt);
 		~VulkanSwapchain();
+		void CreateFrameBuffers(VkRenderPass renderPass);
 
 	private:
-		void createFrameBuffers();
 		VkImageView createImageView(VkImage image);
 
 		VkDevice m_Device;

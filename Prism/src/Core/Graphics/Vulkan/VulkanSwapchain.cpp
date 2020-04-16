@@ -42,8 +42,6 @@ namespace Prism {
 		imageViews.reserve(images.size());
 		for (auto image : images)
 			imageViews.push_back(createImageView(image));
-		
-		// createFrameBuffers(); // uncomment once Renderpasses are set
 	}
 
 	VulkanSwapchain::~VulkanSwapchain()
@@ -59,11 +57,9 @@ namespace Prism {
 		vkDestroySwapchainKHR(m_Device, swapchain, nullptr);
 	}
 
-	void VulkanSwapchain::createFrameBuffers()
+	void VulkanSwapchain::CreateFrameBuffers(VkRenderPass renderPass)
 	{
 		PR_CORE_ASSERT(framebuffers.size() < 1, "There should be no Framebuffers at this point");
-
-		//if (!renderPass.has_value()) renderPass = Defaults::GetDefaultRenderPass()->GetHandle();
 
 		framebuffers = std::vector<VkFramebuffer>{ imageViews.size() };
 		for (int i = 0; i < imageViews.size(); i++)
@@ -74,14 +70,15 @@ namespace Prism {
 
 			VkFramebufferCreateInfo createInfo{};
 			createInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-			createInfo.renderPass = renderPass.value();
+			createInfo.renderPass = renderPass;
 			createInfo.attachmentCount = 1;
 			createInfo.pAttachments = attachments;
 			createInfo.width = extent.width;
 			createInfo.height = extent.height;
 			createInfo.layers = 1;
 
-			vkCreateFramebuffer(m_Device, &createInfo, nullptr, &framebuffers[i]);
+			auto res = vkCreateFramebuffer(m_Device, &createInfo, nullptr, &framebuffers[i]);
+			PR_CORE_ASSERT(res == VK_SUCCESS, "Failed to create framebuffer");
 		}
 	}
 
