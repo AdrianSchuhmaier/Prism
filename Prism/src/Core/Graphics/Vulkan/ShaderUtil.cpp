@@ -96,4 +96,18 @@ namespace Prism {
 		return result;
 	}
 
+	VkShaderStageFlagBits shaderTypeToVulkanStageFlag(const ShaderType& type)
+	{
+		switch (type)
+		{
+		case ShaderType::Vertex: return VK_SHADER_STAGE_VERTEX_BIT;
+		case ShaderType::Fragment: return VK_SHADER_STAGE_FRAGMENT_BIT;
+		case ShaderType::Geometry: return VK_SHADER_STAGE_GEOMETRY_BIT;
+		case ShaderType::Compute: return VK_SHADER_STAGE_COMPUTE_BIT;
+		case ShaderType::TesselationControl: return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+		case ShaderType::TesselationEvaluation: return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+		default: return VK_SHADER_STAGE_ALL_GRAPHICS;
+		}
+	}
+
 }

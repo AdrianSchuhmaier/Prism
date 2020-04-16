@@ -22,11 +22,14 @@ namespace Prism {
 		TesselationEvaluation
 	};
 
+	VkShaderStageFlagBits shaderTypeToVulkanStageFlag(const ShaderType& type);
+
 	using ShaderCode = std::unordered_map<ShaderType, std::string>;
 	using ShaderBinary = std::unordered_map<ShaderType, std::vector<uint32_t>>;
 
 	class ShaderUtil {
 	public:
+
 		static std::optional<ShaderBinary> Load(const std::string& filepath);
 		static std::optional<ShaderBinary> Compile(const ShaderCode& code, const char* name);
 		static std::optional<ShaderCode> ReadFile(const std::string& filepath);

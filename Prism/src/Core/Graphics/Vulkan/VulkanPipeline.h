@@ -28,6 +28,7 @@ namespace Prism {
 
 	private:
 		VulkanContext* m_Context;
+		VkPipeline m_Pipeline;
 
 		VkPipelineLayout m_Layout;
 		VkPipelineColorBlendAttachmentState m_ColorBlendAttachment;

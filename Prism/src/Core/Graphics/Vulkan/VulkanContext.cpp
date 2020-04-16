@@ -19,13 +19,40 @@ namespace Prism {
 		std::tie(m_PhysicalDevice, m_Device) = selectDevice(); // also configures queues
 
 		m_SwapchainSupportDetails = gatherSupportDetails(); // used for every swapchain creations
-		m_Swapchain = std::make_unique<VulkanSwapchain>( m_Device, m_Surface, getCurrentWindowExtent(), m_SwapchainSupportDetails );
+		m_Swapchain = std::make_unique<VulkanSwapchain>(m_Device, m_Surface, getCurrentWindowExtent(), m_SwapchainSupportDetails);
+
+		m_DefaultRenderPass = std::make_unique<VulkanRenderPass>(this,
+			VulkanRenderPass::RenderPassBP{
+				{ // attachmentDescriptions
+					VkAttachmentDescription{{}, m_Swapchain->format, VK_SAMPLE_COUNT_1_BIT,
+						VK_ATTACHMENT_LOAD_OP_CLEAR, VK_ATTACHMENT_STORE_OP_STORE,
+						VK_ATTACHMENT_LOAD_OP_DONT_CARE, VK_ATTACHMENT_STORE_OP_DONT_CARE,
+						VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR}
+				},
+				{ // subpasses
+					VulkanRenderPass::SubpassBP{
+						{ /* inputAttachments */ },
+						{ /* colorAttachments */
+							VkAttachmentReference{ 0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL }
+						} /* other parameters can be default */
+					}
+				},
+				{ // subpassDependencies
+					VkSubpassDependency{ VK_SUBPASS_EXTERNAL, 0,
+						VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+						VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+						{}, VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT
+					}
+				}
+			}
+		);
 	}
 
 	VulkanContext::~VulkanContext()
 	{
 		vkDeviceWaitIdle(m_Device);
 
+		m_DefaultRenderPass = nullptr;
 		m_Swapchain = nullptr; // destruct manually before destroying device and surface
 
 		vkDestroyDevice(m_Device, nullptr);

@@ -10,8 +10,10 @@ namespace Prism {
 		setVertexInput();
 		setRasterizationState(VK_CULL_MODE_BACK_BIT, VK_FRONT_FACE_COUNTER_CLOCKWISE, VK_POLYGON_MODE_FILL);
 		setMultisample(VK_SAMPLE_COUNT_1_BIT);
+		setColorBlend(
+			{ VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ZERO, VK_BLEND_OP_ADD },
+			{ VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ZERO, VK_BLEND_OP_ADD });
 		setLayout();
-
 
 		VkViewport viewport = {};
 		viewport.x = 0.0f;
@@ -34,19 +36,54 @@ namespace Prism {
 
 		VkPipelineDynamicStateCreateInfo dynamicState = {};
 		dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-		dynamicState.dynamicStateCount = m_DynamicStates.size();
+		dynamicState.dynamicStateCount = static_cast<uint32_t>(m_DynamicStates.size());
 		dynamicState.pDynamicStates = m_DynamicStates.data();
 
+		std::vector<VkPipelineShaderStageCreateInfo> stages;
+		stages.reserve(5);
+
+		// vertex + fragment shader must be there
+		stages.emplace_back(m_ShaderModules.at(ShaderType::Vertex).info);
+		stages.emplace_back(m_ShaderModules.at(ShaderType::Fragment).info);
+		// add other shaders (if found)
+		if (m_ShaderModules.find(ShaderType::Geometry) != m_ShaderModules.end())
+			stages.emplace_back(m_ShaderModules.at(ShaderType::Geometry).info);
+		if (m_ShaderModules.find(ShaderType::TesselationControl) != m_ShaderModules.end())
+			stages.emplace_back(m_ShaderModules.at(ShaderType::TesselationControl).info);
+		if (m_ShaderModules.find(ShaderType::TesselationEvaluation) != m_ShaderModules.end())
+			stages.emplace_back(m_ShaderModules.at(ShaderType::TesselationEvaluation).info);
+
+
+		VkGraphicsPipelineCreateInfo createInfo{};
+		createInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+		createInfo.stageCount = static_cast<uint32_t>(stages.size());
+		createInfo.pStages = stages.data();
+		createInfo.pVertexInputState = &m_VertexInputCreateInfo;
+		createInfo.pInputAssemblyState = &m_InputAssemblyCreateInfo;
+		createInfo.pTessellationState = nullptr;
+		createInfo.pViewportState = &viewportState;
+		createInfo.pRasterizationState = &m_RasterizationCreateInfo;
+		createInfo.pMultisampleState = &m_MultisampleCreateInfo;
+		createInfo.pDepthStencilState = nullptr;
+		createInfo.pColorBlendState = &m_ColorBlendCreateInfo;
+		createInfo.pDynamicState = &dynamicState;
+		createInfo.layout = m_Layout;
+		createInfo.renderPass = context->GetDefaultRenderPass();
+		createInfo.subpass = 0;
+		createInfo.basePipelineHandle = nullptr;
+		createInfo.basePipelineIndex = -1;
+
+		auto res = vkCreateGraphicsPipelines(context->GetDevice(), nullptr, 1, &createInfo, nullptr, &m_Pipeline);
 
 		PR_CORE_TRACE("Pipeline created");
 	}
 
 	VulkanPipeline::~VulkanPipeline()
 	{
+		vkDestroyPipeline(m_Context->GetDevice(), m_Pipeline, nullptr);
+		vkDestroyPipelineLayout(m_Context->GetDevice(), m_Layout, nullptr);
 		for (const auto& shaderModule : m_ShaderModules)
 			vkDestroyShaderModule(m_Context->GetDevice(), shaderModule.second.module, nullptr);
-
-		vkDestroyPipelineLayout(m_Context->GetDevice(), m_Layout, nullptr);
 	}
 
 	void VulkanPipeline::setShaders(const ShaderBinary& spv)
@@ -62,11 +99,10 @@ namespace Prism {
 			auto res = vkCreateShaderModule(m_Context->GetDevice(), &moduleCreateInfo, nullptr, &m_ShaderModules[shader.first].module);
 			PR_CORE_ASSERT(res == VK_SUCCESS, "Failed to create shader module");
 
-			VkPipelineShaderStageCreateInfo shaderStageCreateInfo{};
-			shaderStageCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-			shaderStageCreateInfo.stage = (VkShaderStageFlagBits)shader.first;
-			shaderStageCreateInfo.module = m_ShaderModules[shader.first].module;
-			shaderStageCreateInfo.pName = "main";
+			m_ShaderModules[shader.first].info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+			m_ShaderModules[shader.first].info.stage = shaderTypeToVulkanStageFlag(shader.first);
+			m_ShaderModules[shader.first].info.module = m_ShaderModules[shader.first].module;
+			m_ShaderModules[shader.first].info.pName = "main";
 		}
 	}
 

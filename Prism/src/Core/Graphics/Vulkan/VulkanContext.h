@@ -2,6 +2,7 @@
 
 #include "Core/Window/Window.h"
 #include "VulkanSwapchain.h"
+#include "VulkanRenderPass.h"
 
 #include <vulkan/vulkan.h>
 
@@ -17,6 +18,7 @@ namespace Prism {
 
 		VkDevice GetDevice() { return m_Device; }
 		VulkanSwapchain* GetSwapchain() { return m_Swapchain.get(); }
+		VkRenderPass GetDefaultRenderPass() { return m_DefaultRenderPass->GetHandle(); }
 
 	private:
 		VkSurfaceKHR createSurface(GLFWwindow* window);
@@ -38,5 +40,7 @@ namespace Prism {
 
 		VulkanSwapchain::SupportDetails m_SwapchainSupportDetails;
 		std::unique_ptr<VulkanSwapchain> m_Swapchain = nullptr;
+
+		std::unique_ptr<VulkanRenderPass> m_DefaultRenderPass = nullptr;
 	};
 }
